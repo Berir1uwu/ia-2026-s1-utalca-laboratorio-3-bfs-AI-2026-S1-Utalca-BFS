@@ -139,6 +139,11 @@ OPEN.push({start, 0, h_val, h_val});
 std::cout << "===========================\nRunning A*...\n";
     auto startTime = std::chrono::high_resolution_clock::now();
 
+
+    
+    // Registro del coste actual (Punto 3 del checklist)
+    std::unordered_map<std::pair<int,int>, float> gCost; 
+
     // Inicialización
     OPEN.push({start, Heuristic(start, goal)});
     gCost[start] = 0;
@@ -158,11 +163,14 @@ std::cout << "===========================\nRunning A*...\n";
         for(auto dir : dirs){
             std::pair<int, int> neighbor = {current.pos.first + dir.first, current.pos.second + dir.second};
 
+           
             if(neighbor.first >= 0 && neighbor.first < map.h && 
                neighbor.second >= 0 && neighbor.second < map.w && 
                map._map[neighbor.first][neighbor.second] != 1) 
-           
+            {
+        
                 float tentative_gCost = gCost[current.pos] + 1;
+
                 if(gCost.find(neighbor) == gCost.end() || tentative_gCost < gCost[neighbor]) {
                     gCost[neighbor] = tentative_gCost;
                     float fCost = tentative_gCost + Heuristic(neighbor, goal); // f = g + h
