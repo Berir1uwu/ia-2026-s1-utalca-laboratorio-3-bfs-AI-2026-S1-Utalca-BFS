@@ -78,17 +78,20 @@ std::vector<std::pair<int,int>> Search::BFS(const Map& map, std::pair<int,int> s
             }
         }
     }
-    return {};
-}
+    std::cout<<"NOT FOUND!!!!\n";
+    return {start, goal};
+};
 struct Node {
     std::pair<int, int> pos;
-    float h;
+    float g; // Coste real desde el inicio hasta este nodo (Punto 3 del checklist) 
+    float h; // Heurística (estimación hasta el final)
+    float f; // f = g + h (Coste total estimado) 
 
+    // El comparador debe utilizar f = g + h (Punto 5 del checklist) 
     bool operator>(const Node& other) const {
-        return h > other.h;
+        return f > other.f; 
     }
 };
-
 
 std::vector<std::pair<int,int>> Search::greedyBFS(const Map& map, std::pair<int,int> start, std::pair<int,int> goal){
     std::cout<<"===========================\nRunning Greedy...\n";
@@ -98,9 +101,8 @@ std::vector<std::pair<int,int>> Search::greedyBFS(const Map& map, std::pair<int,
     std::unordered_map<std::pair<int,int>,std::pair<int,int>> pathCache;
     std::vector<std::vector<bool>> visited(map.h, std::vector<bool>(map.w, false));
 
-    OPEN.push({start, Heuristic(start, goal)});
-    visited[start.first][start.second] = true;
-
+    float h_val = Heuristic(start, goal);
+OPEN.push({start, 0, h_val, h_val});
     std::pair<int,int> dirs[]{{-1,0},{0,1},{1,0},{0,-1}};   
 
     while(!OPEN.empty()){
@@ -130,7 +132,47 @@ std::vector<std::pair<int,int>> Search::greedyBFS(const Map& map, std::pair<int,
             }
         }
     }
-
     std::cout<<"NOT FOUND!!!!\n";
     return {start, goal};
-}
+};
+    std::vector<std::pair<int,int>> Search::AStar(const Map& map, std::pair<int,int> start, std::pair<int,int> goal){
+std::cout << "===========================\nRunning A*...\n";
+    auto startTime = std::chrono::high_resolution_clock::now();
+
+    // Inicialización
+    OPEN.push({start, Heuristic(start, goal)});
+    gCost[start] = 0;
+
+    std::pair<int,int> dirs[]{{-1,0},{0,1},{1,0},{0,-1}};
+
+    while(!OPEN.empty()){
+        Node current = OPEN.top();
+        OPEN.pop();
+
+        if(current.pos == goal){
+            auto endTime = std::chrono::high_resolution_clock::now();
+            std::cout << "A* FOUND the path!\n";
+            return reconstruct(pathCache, goal);
+        }
+
+        for(auto dir : dirs){
+            std::pair<int, int> neighbor = {current.pos.first + dir.first, current.pos.second + dir.second};
+
+            if(neighbor.first >= 0 && neighbor.first < map.h && 
+               neighbor.second >= 0 && neighbor.second < map.w && 
+               map._map[neighbor.first][neighbor.second] != 1) 
+           
+                float tentative_gCost = gCost[current.pos] + 1;
+                if(gCost.find(neighbor) == gCost.end() || tentative_gCost < gCost[neighbor]) {
+                    gCost[neighbor] = tentative_gCost;
+                    float fCost = tentative_gCost + Heuristic(neighbor, goal); // f = g + h
+                    
+                    pathCache[neighbor] = current.pos;
+                    OPEN.push({neighbor, fCost});
+                }
+            }
+        }
+    }
+    return {};
+    
+};

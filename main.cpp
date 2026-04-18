@@ -29,6 +29,9 @@ int main(int argc, char *argv[]){
     //colorMap.print(path);
     auto path = Search::greedyBFS(map, {x1, y1}, {x2, y2});
     colorMap.print(path);
+
+    auto pathAStar = Search::AStar(map, {x1, y1}, {x2, y2}); 
+    colorMap.print(pathAStar); // Punto 6 del checklist
     //Calculate path distance
     //Print path distance
     if (!path.empty())

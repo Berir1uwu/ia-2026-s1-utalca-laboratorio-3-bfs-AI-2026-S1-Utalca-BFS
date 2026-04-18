@@ -12,5 +12,6 @@ public:
     static std::vector<std::pair<int,int>> BFS(const Map& map, std::pair<int,int> start, std::pair<int,int> goal);//finds and return path in map from start to goal
     static float Heuristic(std::pair<int, int> start, std::pair<int, int> goal);
     static std::vector<std::pair<int, int>> greedyBFS(const Map& map, std::pair<int, int> start, std::pair<int, int> goal);
+    static std::vector<std::pair<int, int>> AStar(const Map& map, std::pair<int, int> start, std::pair<int, int> goal);
     
 };
