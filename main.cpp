@@ -34,13 +34,20 @@ int main(int argc, char *argv[]){
     colorMap.print(pathAStar); // Punto 6 del checklist
     //Calculate path distance
     //Print path distance
+
+    if (!pathAStar.empty()) {
+    colorMap.print(pathAStar); 
+    std::cout << "Dist: " << pathAStar.size() - 1 << std::endl; // Ejemplo de output del PDF 
+} else {
+    std::cout << "No se encontro un camino con A*." << std::endl;
+}/*
     if (!path.empty())
     {
         std::cout << "Dist: " << path.size() - 1 << std::endl;
     } else 
     {
         std::cout << "No se encontro un camino." << std::endl;
-    }
+    }*/
     
     return 0;
 }
