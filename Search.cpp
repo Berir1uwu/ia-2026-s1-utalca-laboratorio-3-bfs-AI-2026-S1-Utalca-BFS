@@ -87,7 +87,7 @@ struct Node {
     float h; // Heurística (estimación hasta el final)
     float f; // f = g + h (Coste total estimado) 
 
-    // El comparador debe utilizar f = g + h (Punto 5 del checklist) 
+
     bool operator>(const Node& other) const {
         return f > other.f; 
     }
@@ -101,8 +101,9 @@ std::vector<std::pair<int,int>> Search::greedyBFS(const Map& map, std::pair<int,
     std::unordered_map<std::pair<int,int>,std::pair<int,int>> pathCache;
     std::vector<std::vector<bool>> visited(map.h, std::vector<bool>(map.w, false));
 
-    float h_val = Heuristic(start, goal);
-OPEN.push({start, 0, h_val, h_val});
+    OPEN.push({start, Heuristic(start, goal)});
+    visited[start.first][start.second] = true;
+
     std::pair<int,int> dirs[]{{-1,0},{0,1},{1,0},{0,-1}};   
 
     while(!OPEN.empty()){
@@ -139,9 +140,11 @@ OPEN.push({start, 0, h_val, h_val});
 std::cout << "===========================\nRunning A*...\n";
     auto startTime = std::chrono::high_resolution_clock::now();
 
-
+    // Estructuras de datos (Punto 4 del checklist)
+    std::priority_queue<Node, std::vector<Node>, std::greater<Node>> OPEN;
+    std::unordered_map<std::pair<int,int>, std::pair<int,int>> pathCache;
     
-    // Registro del coste actual (Punto 3 del checklist)
+
     std::unordered_map<std::pair<int,int>, float> gCost; 
 
     // Inicialización
@@ -163,14 +166,14 @@ std::cout << "===========================\nRunning A*...\n";
         for(auto dir : dirs){
             std::pair<int, int> neighbor = {current.pos.first + dir.first, current.pos.second + dir.second};
 
-           
             if(neighbor.first >= 0 && neighbor.first < map.h && 
                neighbor.second >= 0 && neighbor.second < map.w && 
                map._map[neighbor.first][neighbor.second] != 1) 
             {
-        
+              
                 float tentative_gCost = gCost[current.pos] + 1;
 
+      
                 if(gCost.find(neighbor) == gCost.end() || tentative_gCost < gCost[neighbor]) {
                     gCost[neighbor] = tentative_gCost;
                     float fCost = tentative_gCost + Heuristic(neighbor, goal); // f = g + h
@@ -182,5 +185,7 @@ std::cout << "===========================\nRunning A*...\n";
         }
     }
     return {};
+    
+
     
 };
