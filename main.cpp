@@ -24,20 +24,21 @@ int main(int argc, char *argv[]){
 
 
    
+auto pathBFS = Search::BFS(map, {x1, y1}, {x2, y2});
+colorMap.print(pathBFS);
 
-   // auto path = Search::BFS(map,{atoi(argv[2]),atoi(argv[3])},{atoi(argv[4]),atoi(argv[5])}); 
-    //colorMap.print(path);
-    auto path = Search::greedyBFS(map, {x1, y1}, {x2, y2});
-    colorMap.print(path);
+auto pathGREEDY = Search::Greedy(map, {x1, y1}, {x2, y2});
+colorMap.print(pathGREEDY);
 
-    auto pathAStar = Search::AStar(map, {x1, y1}, {x2, y2}); 
-    colorMap.print(pathAStar); // Punto 6 del checklist
-    //Calculate path distance
-    //Print path distance
+auto pathAStar = Search::AStar(map, {x1, y1}, {x2, y2});
+colorMap.print(pathAStar);
+
+auto pathWAStar = Search::WAStar(map, {x1, y1}, {x2, y2});
+colorMap.print(pathWAStar);
 
     if (!pathAStar.empty()) {
     colorMap.print(pathAStar); 
-    std::cout << "Dist: " << pathAStar.size() - 1 << std::endl; // Ejemplo de output del PDF 
+    std::cout << "Dist: " << pathAStar.size() - 1 << std::endl; 
 } else {
     std::cout << "No se encontro un camino con A*." << std::endl;
 }/*
