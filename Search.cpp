@@ -18,7 +18,7 @@ namespace std
     };
 }
 
-// 1. IMPLEMENTACIÓN DE LA HEURÍSTICA (Punto 3 del checklist)
+
 float Search::Heuristic(std::pair<int, int> start, std::pair<int, int> goal) {
     return std::abs(start.first - goal.first) + std::abs(start.second - goal.second);
 }
@@ -83,9 +83,9 @@ std::vector<std::pair<int,int>> Search::BFS(const Map& map, std::pair<int,int> s
 };
 struct Node {
     std::pair<int, int> pos;
-    float g; // Coste real desde el inicio hasta este nodo (Punto 3 del checklist) 
-    float h; // Heurística (estimación hasta el final)
-    float f; // f = g + h (Coste total estimado) 
+    float g;  
+    float h; 
+    float f; 
 
 
     bool operator>(const Node& other) const {
@@ -137,17 +137,17 @@ std::vector<std::pair<int,int>> Search::greedyBFS(const Map& map, std::pair<int,
     return {start, goal};
 };
     std::vector<std::pair<int,int>> Search::AStar(const Map& map, std::pair<int,int> start, std::pair<int,int> goal){
-std::cout << "===========================\nRunning A*...\n";
+    std::cout << "===========================\nRunning A*...\n";
     auto startTime = std::chrono::high_resolution_clock::now();
 
-    // Estructuras de datos (Punto 4 del checklist)
+    
     std::priority_queue<Node, std::vector<Node>, std::greater<Node>> OPEN;
     std::unordered_map<std::pair<int,int>, std::pair<int,int>> pathCache;
     
 
     std::unordered_map<std::pair<int,int>, float> gCost; 
 
-    // Inicialización
+    
     OPEN.push({start, Heuristic(start, goal)});
     gCost[start] = 0;
 
@@ -185,7 +185,61 @@ std::cout << "===========================\nRunning A*...\n";
         }
     }
     return {};
-    
+}
+
+    std::vector<std::pair<int,int>> Search::WAStar(const Map& map, std::pair<int,int> start, std::pair<int,int> goal)
+    {
+    std::cout << "===========================\nRunning WA*...\n";
+    float weight = 2.0f; 
+    auto startTime = std::chrono::high_resolution_clock::now();
 
     
-};
+    std::priority_queue<Node, std::vector<Node>, std::greater<Node>> OPEN;
+    std::unordered_map<std::pair<int,int>, std::pair<int,int>> pathCache;
+    std::unordered_map<std::pair<int,int>, float> gCost; 
+
+
+    gCost[start] = 0;
+    float hStart = Heuristic(start, goal);
+    float initialFCost = 0 + (weight * hStart);
+    OPEN.push({start, 0, hStart, initialFCost});
+
+    std::pair<int,int> dirs[]{{-1,0},{0,1},{1,0},{0,-1}};
+
+    while(!OPEN.empty()){
+        Node current = OPEN.top();
+        OPEN.pop();
+
+        if(current.pos == goal){
+            auto endTime = std::chrono::high_resolution_clock::now();
+            auto duration = std::chrono::duration<double, std::milli>(endTime - startTime).count();
+            std::cout << "A* FOUND the path!\n"<< duration << " ms\n";
+            return reconstruct(pathCache, goal);
+        }
+
+        for(auto dir : dirs){
+            std::pair<int, int> neighbor = {current.pos.first + dir.first, current.pos.second + dir.second};
+
+            if(neighbor.first >= 0 && neighbor.first < map.h && 
+               neighbor.second >= 0 && neighbor.second < map.w && 
+               map._map[neighbor.first][neighbor.second] != '1') 
+            {
+              
+                float tentative_gCost = gCost[current.pos] + 1;
+
+      
+                if(gCost.find(neighbor) == gCost.end() || tentative_gCost < gCost[neighbor]) {
+                    gCost[neighbor] = tentative_gCost;
+
+                    float h = Heuristic(neighbor, goal);
+                    float fCost = tentative_gCost + (weight * h); // f = g + w * h
+                    
+                    pathCache[neighbor] = current.pos;
+                    OPEN.push({neighbor, tentative_gCost, h, fCost});
+                }
+            }
+        }
+    }
+    std:: cout << "NOT FOUND!!!\n";
+    return {};
+    };
